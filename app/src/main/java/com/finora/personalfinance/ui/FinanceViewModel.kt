@@ -1,0 +1,139 @@
+package com.finora.personalfinance.ui
+
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.viewModelScope
+import com.finora.personalfinance.data.*
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
+
+class FinanceViewModel(app: Application) : AndroidViewModel(app) {
+    private val repo = FinanceRepository(AppDatabase.get(app))
+    val accounts = repo.accounts.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+    val transactions = repo.transactions.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+    val bills = repo.bills.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+    val investments = repo.investments.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+    val debts = repo.debts.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+    val schedules = repo.schedules.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+    val salaries = repo.salaries.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    fun run(action: suspend FinanceRepository.() -> Unit, onError: (String) -> Unit = {}) {
+        viewModelScope.launch {
+            try {
+                repo.action()
+            } catch (e: Exception) {
+                onError(e.message ?: "Terjadi kesalahan")
+            }
+        }
+    }
+
+    fun addAccount(name: String, type: String, balance: Long, error: (String) -> Unit) =
+        run({ addAccount(name, type, balance) }, error)
+
+    fun deleteAccount(accountId: String, error: (String) -> Unit) =
+        run({ deleteAccount(accountId) }, error)
+
+    fun reorderAccounts(orderedIds: List<String>) =
+        run({ reorderAccounts(orderedIds) })
+
+    fun recalculateBalances(onDone: () -> Unit = {}, error: (String) -> Unit = {}) {
+        viewModelScope.launch {
+            try {
+                repo.recalculateBalances()
+                onDone()
+            } catch (e: Exception) {
+                error(e.message ?: "Gagal menghitung ulang saldo")
+            }
+        }
+    }
+
+    fun deleteTransaction(id: String, error: (String) -> Unit = {}) = run({ deleteTransaction(id) }, error)
+
+    fun deleteTransactions(ids: List<String>, error: (String) -> Unit = {}) =
+        run({ deleteTransactions(ids) }, error)
+
+    fun addTransaction(
+        type: String,
+        amount: Long,
+        category: String,
+        accountId: String,
+        date: Long,
+        note: String,
+        error: (String) -> Unit
+    ) = run({ addTransaction(type, amount, category, accountId, date, note) }, error)
+
+    fun transfer(from: String, to: String, amount: Long, note: String = "", error: (String) -> Unit) =
+        run({ transfer(from, to, amount, note) }, error)
+
+    fun addBill(provider: String, item: String, amount: Long, due: Long, tenor: Int, error: (String) -> Unit) =
+        run({ addBill(provider, item, amount, due, tenor) }, error)
+
+    fun payBill(bill: BillEntity, accountId: String, error: (String) -> Unit) =
+        run({ payBill(bill.id, accountId) }, error)
+
+    fun payBills(list: List<BillEntity>, accountId: String, error: (String) -> Unit) =
+        run({ payBills(list, accountId) }, error)
+
+    fun unpayBill(bill: BillEntity, error: (String) -> Unit = {}) =
+        run({ unpayBill(bill.id) }, error)
+
+    fun deleteBill(bill: BillEntity) = run({ deleteBill(bill.id) })
+
+    fun addInvestment(name: String, target: Long?) = run({ addInvestment(name, target) })
+
+    fun contribute(asset: String, account: String, amount: Long, error: (String) -> Unit) =
+        run({ contribute(asset, account, amount) }, error)
+
+    fun withdraw(asset: String, account: String, amount: Long, error: (String) -> Unit) =
+        run({ withdraw(asset, account, amount) }, error)
+
+    fun deleteInvestment(id: String) = run({ deleteInvestment(id) })
+
+    fun addSchedule(assetId: String, accountId: String, amount: Long, dayOfWeek: Int, error: (String) -> Unit) =
+        run({ addSchedule(assetId, accountId, amount, dayOfWeek) }, error)
+
+    fun setScheduleEnabled(id: String, enabled: Boolean) = run({ setScheduleEnabled(id, enabled) })
+
+    fun deleteSchedule(id: String) = run({ deleteSchedule(id) })
+
+    fun processDueSchedules(onDone: (FinanceRepository.ScheduleRunResult) -> Unit = {}) {
+        viewModelScope.launch {
+            try {
+                onDone(repo.processDueSchedules())
+            } catch (_: Exception) {
+            }
+        }
+    }
+
+    /** Tarik tunai: pindahkan saldo dari rekening bank/e-wallet ke rekening Cash. */
+    fun withdrawCash(fromAccountId: String, toCashAccountId: String, amount: Long, note: String = "Tarik tunai", error: (String) -> Unit) =
+        run({ transfer(fromAccountId, toCashAccountId, amount, note) }, error)
+
+    /** Setor tunai: pindahkan saldo dari rekening tunai ke rekening bank/e-wallet. */
+    fun depositCash(fromCashAccountId: String, toAccountId: String, amount: Long, note: String = "Setor tunai", error: (String) -> Unit) =
+        run({ transfer(fromCashAccountId, toAccountId, amount, note) }, error)
+
+    fun addSalary(accountId: String, amount: Long, frequency: String, note: String, hourOfDay: Int, error: (String) -> Unit) =
+        run({ addSalary(accountId, amount, frequency, note, hourOfDay) }, error)
+
+    fun setSalaryEnabled(id: String, enabled: Boolean) = run({ setSalaryEnabled(id, enabled) })
+
+    fun updateSalary(id: String, accountId: String, amount: Long, frequency: String, note: String, hourOfDay: Int, error: (String) -> Unit) =
+        run({ updateSalary(id, accountId, amount, frequency, note, hourOfDay) }, error)
+
+    fun deleteSalary(id: String) = run({ deleteSalary(id) })
+
+    fun addDebt(type: String, person: String, desc: String, amount: Long, error: (String) -> Unit) =
+        run({ addDebt(type, person, desc, amount) }, error)
+
+    fun markDebtPaid(debt: DebtEntity, accountId: String, error: (String) -> Unit = {}) =
+        run({ markDebtPaid(debt, accountId) }, error)
+
+    fun markDebtUnpaid(debt: DebtEntity, error: (String) -> Unit = {}) =
+        run({ markDebtUnpaid(debt) }, error)
+
+    suspend fun exportJson() = repo.exportJson()
+
+    fun importJson(json: String, error: (String) -> Unit) = run({ importJson(json) }, error)
+}
