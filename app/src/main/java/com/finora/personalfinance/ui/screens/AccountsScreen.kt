@@ -67,6 +67,7 @@ import com.finora.personalfinance.data.TransactionEntity
 import com.finora.personalfinance.ui.components.EmptyHint
 import com.finora.personalfinance.ui.rupiah
 import com.finora.personalfinance.ui.theme.Accent
+import com.finora.personalfinance.ui.theme.Paper
 import com.finora.personalfinance.ui.theme.Ink
 import com.finora.personalfinance.ui.theme.Muted
 import com.finora.personalfinance.ui.theme.PanelSoft
@@ -306,7 +307,6 @@ private fun AccountCard(
             .then(if (isDragging) Modifier.shadow(10.dp, RoundedCornerShape(16.dp)) else Modifier)
             .clip(RoundedCornerShape(20.dp))
             .background(Color.White)
-            .border(1.dp, Color(0xFFECECF0), RoundedCornerShape(20.dp))
             .then(
                 if (mode == "normal") Modifier.clickable(onClick = onClick) else Modifier
             )
@@ -335,10 +335,10 @@ private fun AccountCard(
                 Spacer(Modifier.width(8.dp))
             }
             Box(
-                Modifier.size(42.dp).background(if (account.type.equals("E-Wallet", true)) Color(0xFFE8F1FF) else Color(0xFFFFF1D6), CircleShape),
+                Modifier.size(42.dp).background(Paper, CircleShape),
                 contentAlignment = Alignment.Center
             ) {
-                Icon(icon, null, tint = if (account.type.equals("E-Wallet", true)) Color(0xFF3975D7) else Color(0xFFCA9228), modifier = Modifier.size(20.dp))
+                Icon(icon, null, tint = Ink, modifier = Modifier.size(20.dp))
             }
             Spacer(Modifier.width(12.dp))
             Column(Modifier.weight(1f)) {

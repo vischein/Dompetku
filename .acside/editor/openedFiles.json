@@ -1,0 +1,65 @@
+{
+  "allFiles": [
+    {
+      "file": "/storage/emulated/0/Documents/lahul/DompetKu/app/src/main/java/com/finora/personalfinance/ui/screens/AccountsScreen.kt",
+      "selection": {
+        "end": {
+          "column": 36,
+          "index": 12382,
+          "line": 308
+        },
+        "start": {
+          "column": 36,
+          "index": 12382,
+          "line": 308
+        }
+      }
+    },
+    {
+      "file": "/storage/emulated/0/Documents/lahul/DompetKu/app/src/main/java/com/finora/personalfinance/ui/components/CommonComponents.kt",
+      "selection": {
+        "end": {
+          "column": 52,
+          "index": 1792,
+          "line": 38
+        },
+        "start": {
+          "column": 0,
+          "index": 1740,
+          "line": 38
+        }
+      }
+    },
+    {
+      "file": "/storage/emulated/0/Documents/lahul/DompetKu/app/src/main/java/com/finora/personalfinance/ui/theme/Color.kt",
+      "selection": {
+        "end": {
+          "column": 9,
+          "index": 125,
+          "line": 5
+        },
+        "start": {
+          "column": 4,
+          "index": 120,
+          "line": 5
+        }
+      }
+    },
+    {
+      "file": "/storage/emulated/0/Documents/lahul/DompetKu/app/src/main/java/com/finora/personalfinance/ui/screens/InvestmentScreen.kt",
+      "selection": {
+        "end": {
+          "column": 62,
+          "index": 7924,
+          "line": 164
+        },
+        "start": {
+          "column": 57,
+          "index": 7919,
+          "line": 164
+        }
+      }
+    }
+  ],
+  "selectedFile": "/storage/emulated/0/Documents/lahul/DompetKu/app/src/main/java/com/finora/personalfinance/ui/screens/AccountsScreen.kt"
+}
