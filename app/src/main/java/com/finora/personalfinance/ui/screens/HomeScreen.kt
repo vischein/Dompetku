@@ -72,6 +72,7 @@ import com.finora.personalfinance.ui.theme.GoldSoft
 import com.finora.personalfinance.ui.theme.Ink
 import com.finora.personalfinance.ui.theme.Muted
 import com.finora.personalfinance.ui.theme.Panel
+import com.finora.personalfinance.ui.theme.PanelSoft
 import com.finora.personalfinance.ui.theme.Red
 import com.finora.personalfinance.ui.theme.RedSoft
 
@@ -151,13 +152,13 @@ fun HomeScreen(
                     Modifier
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(16.dp))
-                        .background(Color.White.copy(alpha = 0.12f))
+                        .background(PanelSoft)
                         .clickable { onAction("accounts") }
-                        .padding(horizontal = 14.dp, vertical = 12.dp),
+                        .padding(horizontal = 14.dp, vertical = 8.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Box(
-                        Modifier.size(36.dp).background(Color.White.copy(alpha = 0.14f), CircleShape),
+                        Modifier.size(36.dp).background(Gold.copy(alpha = 0.2f), CircleShape),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(Icons.Filled.Payments, null, tint = Gold, modifier = Modifier.size(19.dp))
@@ -167,7 +168,6 @@ fun HomeScreen(
                         Text("Cash", color = Color.White.copy(alpha = 0.72f), fontSize = 12.sp)
                         Text(rupiah(cashAccounts.sumOf { it.balance }), color = Color.White, fontSize = 17.sp, fontWeight = FontWeight.Bold)
                     }
-                    Icon(Icons.Filled.ChevronRight, null, tint = Color.White.copy(alpha = 0.65f))
                 }
                 Spacer(Modifier.height(14.dp))
                 Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
