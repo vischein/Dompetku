@@ -40,6 +40,7 @@ import com.finora.personalfinance.data.TransactionEntity
 import com.finora.personalfinance.ui.components.EmptyHint
 import com.finora.personalfinance.ui.components.SelectableChip
 import com.finora.personalfinance.ui.components.TransactionRow
+import com.finora.personalfinance.ui.buildDisplayTransactions
 import com.finora.personalfinance.ui.formatDate
 import com.finora.personalfinance.ui.startOfMonthMillis
 import com.finora.personalfinance.ui.theme.Ink
@@ -63,29 +64,13 @@ fun TransactionHistoryScreen(
     val monthStart = startOfMonthMillis()
 
     val visibleTransactions = remember(tx, accounts, accountFilter) {
-        val source = if (accountFilter == null) tx else tx.filter { it.accountId == accountFilter }
-        val result = mutableListOf<TransactionEntity>()
-        val handledGroups = mutableSetOf<String>()
-        source.sortedByDescending { it.dateMillis }.forEach { item ->
-            val group = item.transferGroupId
-            if (group == null) result += item
-            else if (handledGroups.add(group)) {
-                val pair = tx.filter { it.transferGroupId == group }
-                val out = pair.firstOrNull { it.type == "transfer_out" } ?: item
-                val input = pair.firstOrNull { it.type == "transfer_in" }
-                val fromName = accounts.firstOrNull { it.id == out.accountId }?.name ?: "Rekening"
-                val toName = accounts.firstOrNull { it.id == input?.accountId }?.name ?: "Rekening"
-                val isCashOut = out.note.contains("tarik tunai", true) || toName.equals("Cash", true) || toName.contains("Dompet Tunai", true)
-                val isCashIn = out.note.contains("setor tunai", true) || fromName.equals("Cash", true) || fromName.contains("Dompet Tunai", true)
-                val display = when {
-                    isCashOut -> out.copy(type = "expense", category = "Tarik tunai", note = "Tarik tunai")
-                    isCashIn -> (input ?: item).copy(type = "income", category = "Setor tunai", note = "Setor tunai")
-                    else -> out.copy(note = "Transfer", category = "$fromName → $toName")
-                }
-                result += display
-            }
+        val source = if (accountFilter == null) {
+            tx
+        } else {
+            tx.filter { it.accountId == accountFilter }
         }
-        result
+
+        buildDisplayTransactions(source, accounts)
     }
 
     val filtered = remember(visibleTransactions, filter, dayMillis) {

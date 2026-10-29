@@ -55,12 +55,14 @@ import com.finora.personalfinance.ui.components.QuickAction
 import com.finora.personalfinance.ui.components.SectionHeader
 import com.finora.personalfinance.ui.components.StatTile
 import com.finora.personalfinance.ui.components.TransactionRow
+import com.finora.personalfinance.ui.buildDisplayTransactions
 import com.finora.personalfinance.ui.formatDate
 import com.finora.personalfinance.ui.isCashAccount
 import com.finora.personalfinance.ui.monthKey
 import com.finora.personalfinance.ui.monthLabel
 import com.finora.personalfinance.ui.rupiah
 import com.finora.personalfinance.ui.startOfMonthMillis
+import com.finora.personalfinance.ui.transactionAccountLabel
 import com.finora.personalfinance.ui.timeGreeting
 import com.finora.personalfinance.ui.theme.Accent
 import com.finora.personalfinance.ui.theme.AccentSoft
@@ -101,6 +103,7 @@ fun HomeScreen(
     fun isCash(a: AccountEntity) = isCashAccount(a)
     val cashAccounts = accounts.filter { isCash(it) }
     val bankAccounts = accounts.filterNot { isCash(it) }
+    val displayTx = buildDisplayTransactions(tx, accounts)
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -262,11 +265,11 @@ fun HomeScreen(
         }
 
         item { SectionHeader("Transaksi terbaru", "Lihat semua", onSeeAllTx) }
-        if (tx.isEmpty()) {
+        if (displayTx.isEmpty()) {
             item { EmptyHint("Transaksi terbaru akan muncul di sini.") }
         } else {
-            items(tx.take(6)) { t ->
-                TransactionRow(t, accounts.firstOrNull { it.id == t.accountId }?.name ?: "Rekening")
+            items(displayTx.take(6), key = { it.id }) { t ->
+                TransactionRow(t, transactionAccountLabel(t, accounts))
             }
         }
 
