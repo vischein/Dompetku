@@ -22,11 +22,9 @@ jobs:
         id: version
         run: |
           VERSION=${GITHUB_REF#refs/tags/v}
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "VERSION_NAME=$VERSION" >> $GITHUB_ENV
           VERSION_CODE=$(echo $VERSION | awk -F. '{printf "%d%02d%02d", $1, $2, $3}')
           echo "VERSION_CODE=$VERSION_CODE" >> $GITHUB_ENV
-          echo "Versi: $VERSION (versionCode: $VERSION_CODE)"
 
       - name: Set up Java 17
         uses: actions/setup-java@v4
@@ -45,24 +43,21 @@ jobs:
         run: |
           sed -i "s/versionName = \".*\"/versionName = \"${{ env.VERSION_NAME }}\"/" app/build.gradle.kts
           sed -i "s/versionCode = .*/versionCode = ${{ env.VERSION_CODE }}/" app/build.gradle.kts
-          echo "===== build.gradle.kts (version section) ====="
-          grep -A5 "defaultConfig" app/build.gradle.kts
 
       - name: Build Debug APK
         run: ./gradlew assembleDebug --stacktrace
 
-      - name: Build Release APK (unsigned)
-        run: ./gradlew assembleRelease --stacktrace
-
-      - name: Prepare release files
+      - name: Prepare APK
         run: |
           mkdir -p release
-          cp app/build/outputs/apk/debug/app-debug.apk release/SakuMe-v${{ env.VERSION_NAME }}-debug.apk
-          cp app/build/outputs/apk/release/app-release-unsigned.apk release/SakuMe-v${{ env.VERSION_NAME }}-release-unsigned.apk
-          cd release
-          sha256sum *.apk > checksums.txt
-          ls -lh
-          cat checksums.txt
+          cp app/build/outputs/apk/debug/app-debug.apk release/SakuMe-v${{ env.VERSION_NAME }}.apk
+
+      - name: Extract changelog for this version
+        id: changelog
+        run: |
+          CHANGELOG=\( (awk "/## \[ \){{ env.VERSION_NAME }}\]/{flag=1; next} /## \[/{flag=0} flag" CHANGELOG.md)
+          echo "$CHANGELOG" > release_notes.md
+          cat release_notes.md
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
@@ -71,24 +66,5 @@ jobs:
           name: SakuMe v${{ env.VERSION_NAME }}
           draft: false
           prerelease: false
-          generate_release_notes: true
-          body: |
-            ## SakuMe v${{ env.VERSION_NAME }}
-
-            Build otomatis dari tag `${{ github.ref_name }}`.
-
-            ### File yang tersedia
-            | File | Keterangan |
-            |------|------------|
-            | `SakuMe-v${{ env.VERSION_NAME }}-debug.apk` | Untuk testing |
-            | `SakuMe-v${{ env.VERSION_NAME }}-release-unsigned.apk` | Perlu di-sign manual sebelum publish |
-            | `checksums.txt` | SHA256 untuk verifikasi integritas |
-
-            ### Cara verifikasi
-            ```bash
-            sha256sum -c checksums.txt
-            ```
-          files: |
-            release/SakuMe-v${{ env.VERSION_NAME }}-debug.apk
-            release/SakuMe-v${{ env.VERSION_NAME }}-release-unsigned.apk
-            release/checksums.txt
+          body_path: release_notes.md
+          files: release/SakuMe-v${{ env.VERSION_NAME }}.apk
