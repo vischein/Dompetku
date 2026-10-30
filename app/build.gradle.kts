@@ -6,10 +6,10 @@ plugins {
     id("com.google.devtools.ksp")
 }
 android {
-    namespace = "com.finora.personalfinance"
+    namespace = "com.sakume.personalfinance"
     compileSdk = 35
     defaultConfig {
-        applicationId = "com.finora.personalfinance"
+        applicationId = "com.sakume.personalfinance"
         minSdk = 26
         targetSdk = 35
         versionCode = 1

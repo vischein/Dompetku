@@ -1,4 +1,4 @@
-package com.finora.personalfinance.data
+package com.sakume.personalfinance.data
 
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
@@ -28,14 +28,14 @@ object BackupCodec {
     fun encode(data: BackupData): String = json.encodeToString(data)
     fun decode(text: String): BackupData = json.decodeFromString(text)
 
-    /** Detects whether [text] is a legacy DompetKu export (numeric ids, "appId" field, savingGoals). */
-    fun isLegacyDompetKu(text: String): Boolean = try {
+    /** Detects whether [text] is a legacy SakuMe export (numeric ids, "appId" field, savingGoals). */
+    fun isLegacySakuMe(text: String): Boolean = try {
         val obj = Json.parseToJsonElement(text).jsonObject
         obj.containsKey("appId") || obj.containsKey("savingGoals")
     } catch (e: Exception) { false }
 
-    /** Parses a legacy DompetKu backup JSON and remaps it into Finora's [BackupData] shape. */
-    fun decodeLegacyDompetKu(text: String): BackupData {
+    /** Parses a legacy SakuMe backup JSON and remaps it into SakuMe's [BackupData] shape. */
+    fun decodeLegacySakuMe(text: String): BackupData {
         val root = Json.parseToJsonElement(text).jsonObject
         fun arr(key: String) = root[key]?.jsonArray.orEmpty()
 

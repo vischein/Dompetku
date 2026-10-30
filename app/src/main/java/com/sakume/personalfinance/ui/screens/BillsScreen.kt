@@ -1,4 +1,4 @@
-package com.finora.personalfinance.ui.screens
+package com.sakume.personalfinance.ui.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -41,24 +41,24 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.finora.personalfinance.data.AccountEntity
-import com.finora.personalfinance.data.BillEntity
-import com.finora.personalfinance.ui.components.EmptyHint
-import com.finora.personalfinance.ui.components.SelectableChip
-import com.finora.personalfinance.ui.dueInLabel
-import com.finora.personalfinance.ui.formatDate
-import com.finora.personalfinance.ui.monthKey
-import com.finora.personalfinance.ui.monthLabel
-import com.finora.personalfinance.ui.rupiah
-import com.finora.personalfinance.ui.theme.CardBg
-import com.finora.personalfinance.ui.theme.Gold
-import com.finora.personalfinance.ui.theme.GoldSoft
-import com.finora.personalfinance.ui.theme.Ink
-import com.finora.personalfinance.ui.theme.Muted
-import com.finora.personalfinance.ui.theme.Paper
-import com.finora.personalfinance.ui.theme.Red
-import com.finora.personalfinance.ui.theme.RedSoft
-import com.finora.personalfinance.ui.urgency
+import com.sakume.personalfinance.data.AccountEntity
+import com.sakume.personalfinance.data.BillEntity
+import com.sakume.personalfinance.ui.components.EmptyHint
+import com.sakume.personalfinance.ui.components.SelectableChip
+import com.sakume.personalfinance.ui.dueInLabel
+import com.sakume.personalfinance.ui.formatDate
+import com.sakume.personalfinance.ui.monthKey
+import com.sakume.personalfinance.ui.monthLabel
+import com.sakume.personalfinance.ui.rupiah
+import com.sakume.personalfinance.ui.theme.CardBg
+import com.sakume.personalfinance.ui.theme.Gold
+import com.sakume.personalfinance.ui.theme.GoldSoft
+import com.sakume.personalfinance.ui.theme.Ink
+import com.sakume.personalfinance.ui.theme.Muted
+import com.sakume.personalfinance.ui.theme.Paper
+import com.sakume.personalfinance.ui.theme.Red
+import com.sakume.personalfinance.ui.theme.RedSoft
+import com.sakume.personalfinance.ui.urgency
 
 @Composable
 fun BillsScreen(

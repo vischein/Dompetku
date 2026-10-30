@@ -1,4 +1,4 @@
-package com.finora.personalfinance.ui.screens
+package com.sakume.personalfinance.ui.screens
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -33,21 +33,21 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.finora.personalfinance.data.AccountEntity
-import com.finora.personalfinance.data.InvestmentEntity
-import com.finora.personalfinance.data.ScheduledInvestmentEntity
-import com.finora.personalfinance.ui.components.EmptyHint
-import com.finora.personalfinance.ui.formatDate
-import com.finora.personalfinance.ui.rupiah
-import com.finora.personalfinance.ui.theme.Accent
-import com.finora.personalfinance.ui.theme.AccentSoft
-import com.finora.personalfinance.ui.theme.CardBg
-import com.finora.personalfinance.ui.theme.Ink
-import com.finora.personalfinance.ui.theme.Muted
-import com.finora.personalfinance.ui.theme.Paper
-import com.finora.personalfinance.ui.theme.PanelSoft
-import com.finora.personalfinance.ui.theme.Red
-import com.finora.personalfinance.ui.theme.RedSoft
+import com.sakume.personalfinance.data.AccountEntity
+import com.sakume.personalfinance.data.InvestmentEntity
+import com.sakume.personalfinance.data.ScheduledInvestmentEntity
+import com.sakume.personalfinance.ui.components.EmptyHint
+import com.sakume.personalfinance.ui.formatDate
+import com.sakume.personalfinance.ui.rupiah
+import com.sakume.personalfinance.ui.theme.Accent
+import com.sakume.personalfinance.ui.theme.AccentSoft
+import com.sakume.personalfinance.ui.theme.CardBg
+import com.sakume.personalfinance.ui.theme.Ink
+import com.sakume.personalfinance.ui.theme.Muted
+import com.sakume.personalfinance.ui.theme.Paper
+import com.sakume.personalfinance.ui.theme.PanelSoft
+import com.sakume.personalfinance.ui.theme.Red
+import com.sakume.personalfinance.ui.theme.RedSoft
 
 private val dayNames = listOf(
     "", "Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"

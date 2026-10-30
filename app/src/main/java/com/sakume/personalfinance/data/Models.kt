@@ -1,4 +1,4 @@
-package com.finora.personalfinance.data
+package com.sakume.personalfinance.data
 
 import androidx.room.Entity
 import androidx.room.Index

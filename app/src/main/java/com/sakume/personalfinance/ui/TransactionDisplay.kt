@@ -1,7 +1,7 @@
-package com.finora.personalfinance.ui
+package com.sakume.personalfinance.ui
 
-import com.finora.personalfinance.data.AccountEntity
-import com.finora.personalfinance.data.TransactionEntity
+import com.sakume.personalfinance.data.AccountEntity
+import com.sakume.personalfinance.data.TransactionEntity
 
 /**
  * Single display mapping used by Home "Transaksi terbaru" and the full history.

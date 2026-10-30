@@ -1,4 +1,4 @@
-package com.finora.personalfinance.ui.screens
+package com.sakume.personalfinance.ui.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -25,10 +25,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.finora.personalfinance.ui.theme.CardBg
-import com.finora.personalfinance.ui.theme.Ink
-import com.finora.personalfinance.ui.theme.Muted
-import com.finora.personalfinance.ui.theme.Paper
+import com.sakume.personalfinance.ui.theme.CardBg
+import com.sakume.personalfinance.ui.theme.Ink
+import com.sakume.personalfinance.ui.theme.Muted
+import com.sakume.personalfinance.ui.theme.Paper
 
 @Composable
 fun BackupScreen(

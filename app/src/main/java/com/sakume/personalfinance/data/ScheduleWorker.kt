@@ -1,4 +1,4 @@
-package com.finora.personalfinance.data
+package com.sakume.personalfinance.data
 
 import android.content.Context
 import androidx.work.CoroutineWorker
@@ -7,7 +7,7 @@ import androidx.work.ListenableWorker
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
-import com.finora.personalfinance.ui.Notify
+import com.sakume.personalfinance.ui.Notify
 import java.util.concurrent.TimeUnit
 
 /**
@@ -50,7 +50,7 @@ class ScheduleWorker(
     }
 
     companion object {
-        private const val UNIQUE_WORK = "dompetku_schedule_worker"
+        private const val UNIQUE_WORK = "sakume_schedule_worker"
 
         fun enqueue(context: Context) {
             val request = PeriodicWorkRequestBuilder<ScheduleWorker>(15, TimeUnit.MINUTES)

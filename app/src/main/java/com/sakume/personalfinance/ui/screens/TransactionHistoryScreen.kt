@@ -1,4 +1,4 @@
-package com.finora.personalfinance.ui.screens
+package com.sakume.personalfinance.ui.screens
 
 import android.app.DatePickerDialog
 import androidx.compose.foundation.layout.Arrangement
@@ -35,17 +35,17 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.finora.personalfinance.data.AccountEntity
-import com.finora.personalfinance.data.TransactionEntity
-import com.finora.personalfinance.ui.components.EmptyHint
-import com.finora.personalfinance.ui.components.SelectableChip
-import com.finora.personalfinance.ui.components.TransactionRow
-import com.finora.personalfinance.ui.buildDisplayTransactions
-import com.finora.personalfinance.ui.formatDate
-import com.finora.personalfinance.ui.startOfMonthMillis
-import com.finora.personalfinance.ui.theme.Ink
-import com.finora.personalfinance.ui.theme.Muted
-import com.finora.personalfinance.ui.theme.Red
+import com.sakume.personalfinance.data.AccountEntity
+import com.sakume.personalfinance.data.TransactionEntity
+import com.sakume.personalfinance.ui.components.EmptyHint
+import com.sakume.personalfinance.ui.components.SelectableChip
+import com.sakume.personalfinance.ui.components.TransactionRow
+import com.sakume.personalfinance.ui.buildDisplayTransactions
+import com.sakume.personalfinance.ui.formatDate
+import com.sakume.personalfinance.ui.startOfMonthMillis
+import com.sakume.personalfinance.ui.theme.Ink
+import com.sakume.personalfinance.ui.theme.Muted
+import com.sakume.personalfinance.ui.theme.Red
 import java.util.Calendar
 
 @Composable

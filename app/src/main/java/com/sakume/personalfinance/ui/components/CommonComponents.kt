@@ -1,4 +1,4 @@
-package com.finora.personalfinance.ui.components
+package com.sakume.personalfinance.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -32,17 +32,17 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.finora.personalfinance.data.TransactionEntity
-import com.finora.personalfinance.ui.formatDate
-import com.finora.personalfinance.ui.rupiah
-import com.finora.personalfinance.ui.theme.CardBg
-import com.finora.personalfinance.ui.theme.PanelSoft
-import com.finora.personalfinance.ui.theme.Green
-import com.finora.personalfinance.ui.theme.GreenSoft
-import com.finora.personalfinance.ui.theme.Ink
-import com.finora.personalfinance.ui.theme.Muted
-import com.finora.personalfinance.ui.theme.Red
-import com.finora.personalfinance.ui.theme.RedSoft
+import com.sakume.personalfinance.data.TransactionEntity
+import com.sakume.personalfinance.ui.formatDate
+import com.sakume.personalfinance.ui.rupiah
+import com.sakume.personalfinance.ui.theme.CardBg
+import com.sakume.personalfinance.ui.theme.PanelSoft
+import com.sakume.personalfinance.ui.theme.Green
+import com.sakume.personalfinance.ui.theme.GreenSoft
+import com.sakume.personalfinance.ui.theme.Ink
+import com.sakume.personalfinance.ui.theme.Muted
+import com.sakume.personalfinance.ui.theme.Red
+import com.sakume.personalfinance.ui.theme.RedSoft
 
 @Composable
 fun EmptyHint(text: String) {
@@ -231,7 +231,7 @@ fun MetricChip(title: String, value: String, tint: Color, modifier: Modifier = M
     Column(
         modifier
             .clip(RoundedCornerShape(16.dp))
-            .background(com.finora.personalfinance.ui.theme.PanelSoft)
+            .background(com.sakume.personalfinance.ui.theme.PanelSoft)
             .padding(12.dp)
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {

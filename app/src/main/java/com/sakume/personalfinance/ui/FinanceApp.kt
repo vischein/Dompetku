@@ -1,4 +1,4 @@
-package com.finora.personalfinance.ui
+package com.sakume.personalfinance.ui
 
 import android.Manifest
 import android.content.Intent
@@ -22,23 +22,23 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import com.finora.personalfinance.data.BackupCodec
-import com.finora.personalfinance.ui.components.AccountPickerDialog
-import com.finora.personalfinance.ui.components.CashTransferDialog
-import com.finora.personalfinance.ui.components.ConfirmDialog
-import com.finora.personalfinance.ui.components.DompetKuBottomBar
-import com.finora.personalfinance.ui.components.FormDialog
-import com.finora.personalfinance.ui.components.MessageDialog
-import com.finora.personalfinance.ui.isCashAccount
-import com.finora.personalfinance.ui.screens.AccountsScreen
-import com.finora.personalfinance.ui.screens.BackupScreen
-import com.finora.personalfinance.ui.screens.TransactionHistoryScreen
-import com.finora.personalfinance.ui.screens.BillsScreen
-import com.finora.personalfinance.ui.screens.HomeScreen
-import com.finora.personalfinance.ui.screens.InvestmentScreen
-import com.finora.personalfinance.ui.screens.MoreScreen
-import com.finora.personalfinance.ui.theme.DompetKuTheme
-import com.finora.personalfinance.ui.theme.Paper
+import com.sakume.personalfinance.data.BackupCodec
+import com.sakume.personalfinance.ui.components.AccountPickerDialog
+import com.sakume.personalfinance.ui.components.CashTransferDialog
+import com.sakume.personalfinance.ui.components.ConfirmDialog
+import com.sakume.personalfinance.ui.components.SakuMeBottomBar
+import com.sakume.personalfinance.ui.components.FormDialog
+import com.sakume.personalfinance.ui.components.MessageDialog
+import com.sakume.personalfinance.ui.isCashAccount
+import com.sakume.personalfinance.ui.screens.AccountsScreen
+import com.sakume.personalfinance.ui.screens.BackupScreen
+import com.sakume.personalfinance.ui.screens.TransactionHistoryScreen
+import com.sakume.personalfinance.ui.screens.BillsScreen
+import com.sakume.personalfinance.ui.screens.HomeScreen
+import com.sakume.personalfinance.ui.screens.InvestmentScreen
+import com.sakume.personalfinance.ui.screens.MoreScreen
+import com.sakume.personalfinance.ui.theme.SakuMeTheme
+import com.sakume.personalfinance.ui.theme.Paper
 import kotlinx.coroutines.launch
 import java.util.Calendar
 
@@ -74,17 +74,17 @@ fun FinanceApp(vm: FinanceViewModel) {
         scope.launch {
             try {
                 val text = vm.exportJson()
-                val file = File(context.cacheDir, "dompetku_backup_${System.currentTimeMillis()}.json")
+                val file = File(context.cacheDir, "sakume_backup_${System.currentTimeMillis()}.json")
                 file.writeText(text)
                 val uri = FileProvider.getUriForFile(context, context.packageName + ".fileprovider", file)
                 val intent = Intent(Intent.ACTION_SEND).apply {
                     type = "application/json"
                     putExtra(Intent.EXTRA_STREAM, uri)
-                    putExtra(Intent.EXTRA_SUBJECT, "Backup DompetKu")
-                    putExtra(Intent.EXTRA_TEXT, "Backup data DompetKu")
+                    putExtra(Intent.EXTRA_SUBJECT, "Backup SakuMe")
+                    putExtra(Intent.EXTRA_TEXT, "Backup data SakuMe")
                     addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                 }
-                context.startActivity(Intent.createChooser(intent, "Bagikan backup DompetKu"))
+                context.startActivity(Intent.createChooser(intent, "Bagikan backup SakuMe"))
             } catch (e: Exception) {
                 importResult = "Gagal membagikan backup: ${e.message}"
             }
@@ -142,20 +142,20 @@ fun FinanceApp(vm: FinanceViewModel) {
         if (uri != null) scope.launch {
             try {
                 val text = context.contentResolver.openInputStream(uri)?.bufferedReader()?.use { it.readText() } ?: ""
-                val legacy = BackupCodec.isLegacyDompetKu(text)
+                val legacy = BackupCodec.isLegacySakuMe(text)
                 vm.importJson(text) { err -> importResult = "Gagal mengimpor: $err" }
-                importResult = if (legacy) "Data lama (DompetKu) berhasil diimpor." else "Backup berhasil dipulihkan."
+                importResult = if (legacy) "Data lama (SakuMe) berhasil diimpor." else "Backup berhasil dipulihkan."
             } catch (e: Exception) {
                 importResult = "Gagal membaca file: ${e.message}"
             }
         }
     }
 
-    DompetKuTheme {
+    SakuMeTheme {
         Scaffold(
             containerColor = Paper,
             bottomBar = {
-                DompetKuBottomBar(selected = tab, onSelect = { label ->
+                SakuMeBottomBar(selected = tab, onSelect = { label ->
                     tab = label
                     subScreen = null
                     if (label == "Bills") billsProviderFilter = "Semua"

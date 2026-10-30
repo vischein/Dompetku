@@ -1,4 +1,4 @@
-package com.finora.personalfinance.ui.screens
+package com.sakume.personalfinance.ui.screens
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.Spring
@@ -62,16 +62,16 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
-import com.finora.personalfinance.data.AccountEntity
-import com.finora.personalfinance.data.TransactionEntity
-import com.finora.personalfinance.ui.components.EmptyHint
-import com.finora.personalfinance.ui.rupiah
-import com.finora.personalfinance.ui.theme.Accent
-import com.finora.personalfinance.ui.theme.Paper
-import com.finora.personalfinance.ui.theme.Ink
-import com.finora.personalfinance.ui.theme.Muted
-import com.finora.personalfinance.ui.theme.PanelSoft
-import com.finora.personalfinance.ui.theme.Red
+import com.sakume.personalfinance.data.AccountEntity
+import com.sakume.personalfinance.data.TransactionEntity
+import com.sakume.personalfinance.ui.components.EmptyHint
+import com.sakume.personalfinance.ui.rupiah
+import com.sakume.personalfinance.ui.theme.Accent
+import com.sakume.personalfinance.ui.theme.Paper
+import com.sakume.personalfinance.ui.theme.Ink
+import com.sakume.personalfinance.ui.theme.Muted
+import com.sakume.personalfinance.ui.theme.PanelSoft
+import com.sakume.personalfinance.ui.theme.Red
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 

@@ -1,4 +1,4 @@
-package com.finora.personalfinance.ui.screens
+package com.sakume.personalfinance.ui.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -46,23 +46,23 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.finora.personalfinance.data.AccountEntity
-import com.finora.personalfinance.data.DebtEntity
-import com.finora.personalfinance.data.SalaryScheduleEntity
-import com.finora.personalfinance.ui.components.EmptyHint
-import com.finora.personalfinance.ui.components.SelectableChip
-import com.finora.personalfinance.ui.components.StatTile
-import com.finora.personalfinance.ui.formatDate
-import com.finora.personalfinance.ui.rupiah
-import com.finora.personalfinance.ui.theme.Accent
-import com.finora.personalfinance.ui.theme.AccentSoft
-import com.finora.personalfinance.ui.theme.CardBg
-import com.finora.personalfinance.ui.theme.Green
-import com.finora.personalfinance.ui.theme.GreenSoft
-import com.finora.personalfinance.ui.theme.Ink
-import com.finora.personalfinance.ui.theme.Muted
-import com.finora.personalfinance.ui.theme.Red
-import com.finora.personalfinance.ui.theme.RedSoft
+import com.sakume.personalfinance.data.AccountEntity
+import com.sakume.personalfinance.data.DebtEntity
+import com.sakume.personalfinance.data.SalaryScheduleEntity
+import com.sakume.personalfinance.ui.components.EmptyHint
+import com.sakume.personalfinance.ui.components.SelectableChip
+import com.sakume.personalfinance.ui.components.StatTile
+import com.sakume.personalfinance.ui.formatDate
+import com.sakume.personalfinance.ui.rupiah
+import com.sakume.personalfinance.ui.theme.Accent
+import com.sakume.personalfinance.ui.theme.AccentSoft
+import com.sakume.personalfinance.ui.theme.CardBg
+import com.sakume.personalfinance.ui.theme.Green
+import com.sakume.personalfinance.ui.theme.GreenSoft
+import com.sakume.personalfinance.ui.theme.Ink
+import com.sakume.personalfinance.ui.theme.Muted
+import com.sakume.personalfinance.ui.theme.Red
+import com.sakume.personalfinance.ui.theme.RedSoft
 
 private fun freqLabel(f: String) = when (f) {
     "daily" -> "Setiap hari"

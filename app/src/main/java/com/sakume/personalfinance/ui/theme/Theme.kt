@@ -1,11 +1,11 @@
-package com.finora.personalfinance.ui.theme
+package com.sakume.personalfinance.ui.theme
 
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 
-private val DompetKuColorScheme = lightColorScheme(
+private val SakuMeColorScheme = lightColorScheme(
     primary = Ink,
     onPrimary = Color.White,
     secondary = Accent,
@@ -27,9 +27,9 @@ private val DompetKuColorScheme = lightColorScheme(
 )
 
 @Composable
-fun DompetKuTheme(content: @Composable () -> Unit) {
+fun SakuMeTheme(content: @Composable () -> Unit) {
     MaterialTheme(
-        colorScheme = DompetKuColorScheme,
+        colorScheme = SakuMeColorScheme,
         content = content
     )
 }

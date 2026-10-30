@@ -1,4 +1,4 @@
-package com.finora.personalfinance.data
+package com.sakume.personalfinance.data
 
 import android.content.Context
 import androidx.room.Dao
@@ -283,7 +283,7 @@ abstract class AppDatabase : RoomDatabase() {
                 INSTANCE ?: Room.databaseBuilder(
                     context.applicationContext,
                     AppDatabase::class.java,
-                    "dompetku.db"
+                    "sakume.db"
                 )
                     .addMigrations(
                         MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4,

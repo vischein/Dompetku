@@ -1,4 +1,4 @@
-package com.finora.personalfinance.data
+package com.sakume.personalfinance.data
 
 import androidx.room.withTransaction
 import kotlinx.coroutines.flow.Flow
@@ -726,8 +726,8 @@ class FinanceRepository(private val db: AppDatabase) {
     }
 
     suspend fun importJson(json: String) = db.withTransaction {
-        val data = if (BackupCodec.isLegacyDompetKu(json)) {
-            BackupCodec.decodeLegacyDompetKu(json)
+        val data = if (BackupCodec.isLegacySakuMe(json)) {
+            BackupCodec.decodeLegacySakuMe(json)
         } else {
             BackupCodec.decode(json)
         }

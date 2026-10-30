@@ -1,4 +1,4 @@
-package com.finora.personalfinance.ui.theme
+package com.sakume.personalfinance.ui.theme
 
 import androidx.compose.ui.graphics.Color
 

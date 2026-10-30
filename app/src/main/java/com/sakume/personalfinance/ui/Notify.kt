@@ -1,4 +1,4 @@
-package com.finora.personalfinance.ui
+package com.sakume.personalfinance.ui
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -8,7 +8,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 
 object Notify {
-    private const val CHANNEL_ID = "dompetku_schedules"
+    private const val CHANNEL_ID = "sakume_schedules"
     private const val ID_INVEST = 1001
     private const val ID_SALARY = 1002
     private const val ID_BILL = 1003
@@ -17,7 +17,7 @@ object Notify {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
                 CHANNEL_ID,
-                "Jadwal DompetKu",
+                "Jadwal SakuMe",
                 NotificationManager.IMPORTANCE_DEFAULT
             ).apply {
                 description = "Notifikasi setor investasi & gaji otomatis"

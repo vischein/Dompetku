@@ -1,9 +1,9 @@
-package com.finora.personalfinance.ui
+package com.sakume.personalfinance.ui
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.finora.personalfinance.data.*
+import com.sakume.personalfinance.data.*
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch

@@ -1,10 +1,10 @@
-package com.finora.personalfinance
+package com.sakume.personalfinance
 
 import android.app.Application
-import com.finora.personalfinance.data.ScheduleWorker
-import com.finora.personalfinance.ui.Notify
+import com.sakume.personalfinance.data.ScheduleWorker
+import com.sakume.personalfinance.ui.Notify
 
-class DompetKuApp : Application() {
+class SakuMeApp : Application() {
     override fun onCreate() {
         super.onCreate()
         Notify.ensureChannel(this)

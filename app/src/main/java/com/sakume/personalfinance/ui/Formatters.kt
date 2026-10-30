@@ -1,7 +1,7 @@
-package com.finora.personalfinance.ui
+package com.sakume.personalfinance.ui
 
-import com.finora.personalfinance.data.AccountEntity
-import com.finora.personalfinance.data.BillEntity
+import com.sakume.personalfinance.data.AccountEntity
+import com.sakume.personalfinance.data.BillEntity
 import java.text.NumberFormat
 import java.text.SimpleDateFormat
 import java.util.Calendar

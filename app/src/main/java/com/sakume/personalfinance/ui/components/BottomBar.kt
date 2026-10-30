@@ -1,4 +1,4 @@
-package com.finora.personalfinance.ui.components
+package com.sakume.personalfinance.ui.components
 
 import androidx.compose.foundation.border
 import androidx.compose.material.icons.Icons
@@ -23,12 +23,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.finora.personalfinance.ui.theme.CardBg
-import com.finora.personalfinance.ui.theme.Ink
-import com.finora.personalfinance.ui.theme.Muted
+import com.sakume.personalfinance.ui.theme.CardBg
+import com.sakume.personalfinance.ui.theme.Ink
+import com.sakume.personalfinance.ui.theme.Muted
 
 @Composable
-fun DompetKuBottomBar(selected: String, onSelect: (String) -> Unit) {
+fun SakuMeBottomBar(selected: String, onSelect: (String) -> Unit) {
     val navItems = listOf(
         Triple("Home", Icons.Filled.Home, Icons.Outlined.Home),
         Triple("Accounts", Icons.Filled.CreditCard, Icons.Outlined.CreditCard),
