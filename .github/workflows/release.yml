@@ -58,18 +58,16 @@ jobs:
           echo "Mencari changelog untuk versi: $VERSION"
 
           if [ -f CHANGELOG.md ]; then
-            awk -v ver="$VERSION" '
-              $0 \~ "^## \\[" ver "\\]" {flag=1; next}
-              flag && /^## \[/ {exit}
-              flag {print}
-            ' CHANGELOG.md > release_notes.md
+            # Ambil dari ## [VERSION] sampai baris sebelum ## berikutnya
+            sed -n "/## \[$VERSION\]/,/^## \[/p" CHANGELOG.md | sed '$d' > release_notes.md
           else
             echo "CHANGELOG.md tidak ditemukan" > release_notes.md
           fi
 
+          # Kalau hasilnya kosong, buat default
           if [ ! -s release_notes.md ]; then
             echo "### Changes" > release_notes.md
-            echo "- Release v${VERSION}" >> release_notes.md
+            echo "- Release v$VERSION" >> release_notes.md
           fi
 
           echo "===== Release Notes ====="
