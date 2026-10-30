@@ -12,6 +12,8 @@ data class AccountEntity(
     val name: String,
     val type: String = "Cash",
     val balance: Long = 0,
+    /** Saldo awal yang menjadi titik dasar perhitungan ulang. */
+    val openingBalance: Long = 0,
     val sortOrder: Int = 0
 )
 

@@ -35,6 +35,9 @@ interface FinanceDao {
     @Query("DELETE FROM accounts WHERE id = :id")
     suspend fun deleteAccount(id: String)
 
+    @Query("SELECT * FROM transactions WHERE accountId = :accountId LIMIT 1")
+    suspend fun firstTransactionForAccount(accountId: String): TransactionEntity?
+
     @Query("DELETE FROM transactions WHERE accountId = :accountId")
     suspend fun deleteTransactionsForAccount(accountId: String)
 
@@ -62,6 +65,9 @@ interface FinanceDao {
     @Query("SELECT * FROM transactions WHERE investmentAssetId = :assetId")
     suspend fun transactionsForInvestment(assetId: String): List<TransactionEntity>
 
+    @Query("SELECT * FROM transactions WHERE transferGroupId = :groupId ORDER BY dateMillis ASC")
+    suspend fun allTransactionsByGroup(groupId: String): List<TransactionEntity>
+
     @Query("SELECT * FROM bills ORDER BY isPaid ASC, dueDateMillis ASC")
     fun bills(): Flow<List<BillEntity>>
 
@@ -77,7 +83,10 @@ interface FinanceDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun putBills(items: List<BillEntity>)
 
-    @Query("DELETE FROM bills WHERE id = :id OR parentBillId = :id")
+    @Query("SELECT * FROM bills WHERE id = :id OR parentBillId = :id ORDER BY installmentIndex ASC")
+    suspend fun billFamily(id: String): List<BillEntity>
+
+    @Query("DELETE FROM bills WHERE id = :id")
     suspend fun deleteBill(id: String)
 
     @Query("SELECT * FROM investments ORDER BY archived ASC, name")
@@ -121,6 +130,9 @@ interface FinanceDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun putDebts(items: List<DebtEntity>)
+
+    @Query("DELETE FROM debts WHERE id = :id")
+    suspend fun deleteDebt(id: String)
 
     @Query("SELECT * FROM scheduled_investments ORDER BY createdAtMillis DESC")
     fun schedules(): Flow<List<ScheduledInvestmentEntity>>
@@ -191,7 +203,7 @@ interface FinanceDao {
         ScheduledInvestmentEntity::class,
         SalaryScheduleEntity::class
     ],
-    version = 8,
+    version = 9,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -278,6 +290,28 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        private val MIGRATION_8_9 = object : Migration(8, 9) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE accounts ADD COLUMN openingBalance INTEGER NOT NULL DEFAULT 0")
+                // Recover the historical opening balance from the current balance minus
+                // the net effect of all known transactions.
+                db.execSQL("""
+                    UPDATE accounts
+                    SET openingBalance = balance - COALESCE((
+                        SELECT SUM(
+                            CASE
+                                WHEN t.type IN ('income', 'transfer_in') THEN t.amount
+                                WHEN t.type IN ('expense', 'transfer_out') THEN -t.amount
+                                ELSE 0
+                            END
+                        )
+                        FROM transactions t
+                        WHERE t.accountId = accounts.id
+                    ), 0)
+                """)
+            }
+        }
+
         fun get(context: Context): AppDatabase =
             INSTANCE ?: synchronized(this) {
                 INSTANCE ?: Room.databaseBuilder(
@@ -287,7 +321,7 @@ abstract class AppDatabase : RoomDatabase() {
                 )
                     .addMigrations(
                         MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4,
-                        MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8
+                        MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8, MIGRATION_8_9
                     )
                     .build()
                     .also { INSTANCE = it }

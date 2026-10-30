@@ -115,27 +115,6 @@ fun FinanceApp(vm: FinanceViewModel) {
         }
     }
 
-    LaunchedEffect(bills) {
-        val now = System.currentTimeMillis()
-        val until = now + 3L * 24 * 60 * 60 * 1000
-        val dueSoon = bills.filter { !it.isPaid && it.dueDateMillis in now..until }
-            .sortedBy { it.dueDateMillis }
-        if (dueSoon.isNotEmpty()) {
-            Notify.billDueSoon(
-                context,
-                dueSoon.joinToString("\n") { b ->
-                    val days = ((b.dueDateMillis - now) / (24L * 60 * 60 * 1000)).toInt().coerceAtLeast(0)
-                    val dayText = when (days) {
-                        0 -> "hari ini"
-                        1 -> "besok"
-                        else -> "$days hari lagi"
-                    }
-                    "${b.provider}, ${b.itemName} ( $dayText )"
-                }
-            )
-        }
-    }
-
     val importLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.OpenDocument()
     ) { uri ->

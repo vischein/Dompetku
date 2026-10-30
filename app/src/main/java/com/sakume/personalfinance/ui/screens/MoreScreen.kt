@@ -140,7 +140,7 @@ fun MoreScreen(
                                     Text(s.note, fontWeight = FontWeight.Bold, color = Ink)
                                     Text(
                                         listOf(rupiah(s.amount), freqLabel(s.frequency), "jam " + s.hourOfDay.toString().padStart(2, '0') + ":00").joinToString(" · "),
-                                        color = Accent,
+                                        color = Muted,
                                         fontSize = 12.sp,
                                         fontWeight = FontWeight.SemiBold
                                     )

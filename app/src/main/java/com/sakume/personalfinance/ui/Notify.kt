@@ -11,7 +11,6 @@ object Notify {
     private const val CHANNEL_ID = "sakume_schedules"
     private const val ID_INVEST = 1001
     private const val ID_SALARY = 1002
-    private const val ID_BILL = 1003
 
     fun ensureChannel(context: Context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -23,6 +22,8 @@ object Notify {
                 description = "Notifikasi setor investasi & gaji otomatis"
             }
             val nm = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            // Bersihkan notifikasi tagihan versi lama yang mungkin masih tampil setelah update.
+            nm.cancel(1003)
             nm.createNotificationChannel(channel)
         }
     }
@@ -35,9 +36,6 @@ object Notify {
         show(context, ID_SALARY, "Gaji otomatis masuk", body)
     }
 
-    fun billDueSoon(context: Context, body: String) {
-        show(context, ID_BILL, "Tagihan mendekati jatuh tempo", body)
-    }
 
     private fun show(context: Context, id: Int, title: String, body: String) {
         ensureChannel(context)

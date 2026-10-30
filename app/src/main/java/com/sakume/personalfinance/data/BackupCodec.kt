@@ -51,7 +51,7 @@ object BackupCodec {
         val accounts = arr("accounts").map { it.jsonObject }.map { a ->
             val newId = UUID.randomUUID().toString()
             accountIdMap[a.longOf("id")] = newId
-            AccountEntity(id = newId, name = a.str("name"), type = a.str("type"), balance = a.longOf("balance"))
+            AccountEntity(id = newId, name = a.str("name"), type = a.str("type"), balance = a.longOf("balance"), openingBalance = a.longOf("balance"))
         }
 
         val savingGoals = arr("savingGoals").map { it.jsonObject }.map { g ->
@@ -114,6 +114,20 @@ object BackupCodec {
             )
         }
 
-        return BackupData(accounts, transactions, bills, savingGoals, emptyList(), debts)
+        // Legacy backup tidak punya openingBalance. Pulihkan titik awal dari
+        // saldo akhir dikurangi seluruh efek transaksi historis per rekening.
+        val netByAccount = transactions.groupBy { it.accountId }.mapValues { (_, items) ->
+            items.sumOf { tx ->
+                when (tx.type) {
+                    "income", "transfer_in" -> tx.amount
+                    "expense", "transfer_out" -> -tx.amount
+                    else -> 0L
+                }
+            }
+        }
+        val normalizedAccounts = accounts.map {
+            it.copy(openingBalance = it.balance - (netByAccount[it.id] ?: 0L))
+        }
+        return BackupData(normalizedAccounts, transactions, bills, savingGoals, emptyList(), debts)
     }
 }

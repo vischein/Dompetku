@@ -37,12 +37,6 @@ class ScheduleWorker(
                     result.salaryRuns.joinToString("\n") { "• $it" }
                 )
             }
-            if (result.failures.isNotEmpty()) {
-                Notify.billDueSoon(
-                    applicationContext,
-                    "Beberapa jadwal gagal:\n" + result.failures.joinToString("\n") { "• $it" }
-                )
-            }
             ListenableWorker.Result.success()
         } catch (e: Exception) {
             ListenableWorker.Result.retry()

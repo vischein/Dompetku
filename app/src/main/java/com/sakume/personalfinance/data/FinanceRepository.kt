@@ -20,7 +20,7 @@ class FinanceRepository(private val db: AppDatabase) {
 
     suspend fun addAccount(name: String, type: String, opening: Long) = db.withTransaction {
         val order = dao.maxAccountSortOrder() + 1
-        dao.putAccount(AccountEntity(id(), name.trim(), type, opening, sortOrder = order))
+        dao.putAccount(AccountEntity(id(), name.trim(), type, opening, openingBalance = opening, sortOrder = order))
     }
 
     suspend fun deleteAccount(accountId: String) = db.withTransaction {
@@ -28,12 +28,20 @@ class FinanceRepository(private val db: AppDatabase) {
         require(account.balance == 0L) {
             "Saldo masih ${account.balance}. Transfer atau kosongkan dulu sebelum menghapus."
         }
-        // Pastikan tidak ada kontribusi investasi aktif yang merujuk rekening ini
+        // Jangan pernah menghapus histori rekening secara sepihak karena transaksi
+        // transfer/debt/investment dapat mempunyai pasangan atau state di entitas lain.
+        val hasTransactions = dao.firstTransactionForAccount(accountId) != null
+        require(!hasTransactions) {
+            "Rekening masih memiliki histori transaksi. Hapus atau pindahkan histori terkait terlebih dahulu."
+        }
         val activeContribs = dao.allContributions().any { it.accountId == accountId }
         require(!activeContribs) {
             "Masih ada kontribusi investasi dari rekening ini. Tarik dulu atau hapus asetnya."
         }
-        dao.deleteTransactionsForAccount(accountId)
+        val paidBill = dao.allBills().any { it.paidAccountId == accountId }
+        require(!paidBill) { "Rekening masih terhubung ke pembayaran tagihan." }
+        val paidDebt = dao.allDebts().any { it.paidAccountId == accountId }
+        require(!paidDebt) { "Rekening masih terhubung ke pelunasan utang/piutang." }
         dao.deleteAccount(accountId)
     }
 
@@ -54,24 +62,22 @@ class FinanceRepository(private val db: AppDatabase) {
     suspend fun recalculateBalances() = db.withTransaction {
         val allTx = dao.allTransactions()
         val accounts = dao.allAccounts()
-        // Mulai dari 0, lalu terapkan setiap transaksi
-        val balances = mutableMapOf<String, Long>()
-        accounts.forEach { balances[it.id] = 0L }
+        // Saldo harus dimulai dari openingBalance, bukan nol. Ini menjaga saldo awal
+        // rekening tetap utuh ketika user menjalankan recovery/recalculate.
+        val balances = accounts.associate { it.id to it.openingBalance }.toMutableMap()
         for (tx in allTx.sortedBy { it.dateMillis }) {
             val delta = when (tx.type) {
                 "income", "transfer_in" -> tx.amount
                 "expense", "transfer_out" -> -tx.amount
                 else -> 0L
             }
-            balances[tx.accountId] = (balances[tx.accountId] ?: 0L) + delta
-        }
-        // Opening balance tidak tersimpan terpisah; kita set balance hasil perhitungan
-        // dan biarkan user menyesuaikan jika perlu via transaksi penyesuaian.
-        accounts.forEach { acc ->
-            val computed = balances[acc.id] ?: 0L
-            if (acc.balance != computed) {
-                dao.putAccount(acc.copy(balance = computed))
+            if (balances.containsKey(tx.accountId)) {
+                balances[tx.accountId] = (balances[tx.accountId] ?: 0L) + delta
             }
+        }
+        accounts.forEach { acc ->
+            val computed = balances[acc.id] ?: acc.openingBalance
+            if (acc.balance != computed) dao.putAccount(acc.copy(balance = computed))
         }
     }
 
@@ -112,17 +118,37 @@ class FinanceRepository(private val db: AppDatabase) {
                 }
                 dao.putAccount(account.copy(balance = newBal))
             }
-            // Jika transaksi ini adalah kontribusi investasi, kurangi nilai aset & hapus kontribusi
+
+            // Payment transaction adalah sumber kebenaran untuk state bill/debt.
+            dao.allBills().firstOrNull { it.paymentTransactionId == item.id }?.let { bill ->
+                dao.putBill(
+                    bill.copy(
+                        isPaid = false,
+                        paidAccountId = null,
+                        paidAtMillis = null,
+                        paymentTransactionId = null
+                    )
+                )
+            }
+            dao.allDebts().firstOrNull { it.paymentTransactionId == item.id }?.let { debt ->
+                dao.putDebt(
+                    debt.copy(
+                        isPaid = false,
+                        paidAtMillis = null,
+                        paidAccountId = null,
+                        paymentTransactionId = null
+                    )
+                )
+            }
+
             if (item.investmentAssetId != null && item.type == "expense") {
                 val asset = dao.allInvestments().firstOrNull { it.id == item.investmentAssetId }
                 if (asset != null && !asset.archived) {
                     dao.putInvestment(asset.copy(value = (asset.value - item.amount).coerceAtLeast(0)))
                 }
-                dao.allContributions()
-                    .filter { it.transactionId == item.id }
+                dao.allContributions().filter { it.transactionId == item.id }
                     .forEach { dao.deleteContribution(it.id) }
             }
-            // Jika transaksi income dari withdraw investasi, tambahkan kembali ke aset
             if (item.investmentAssetId != null && item.type == "income") {
                 val asset = dao.allInvestments().firstOrNull { it.id == item.investmentAssetId }
                 if (asset != null && !asset.archived) {
@@ -230,53 +256,37 @@ class FinanceRepository(private val db: AppDatabase) {
         }
     }
 
-    /** Batalkan pembayaran tagihan: reverse saldo + hapus transaksi + reset status. */
+    /** Batalkan pembayaran tagihan tanpa double-reverse saldo. */
     suspend fun unpayBill(billId: String) = db.withTransaction {
         val bill = dao.bill(billId) ?: error("Tagihan tidak ditemukan")
         require(bill.isPaid) { "Tagihan belum lunas" }
-        val accountId = bill.paidAccountId
         val txId = bill.paymentTransactionId
-        if (accountId != null) {
-            val account = dao.account(accountId)
-            if (account != null) {
-                dao.putAccount(account.copy(balance = account.balance + bill.amount))
-            }
+        if (txId != null && dao.transaction(txId) != null) {
+            // deleteTransaction() sudah membalik saldo dan mereset bill berdasarkan paymentTransactionId.
+            deleteTransaction(txId)
+        } else {
+            val accountId = bill.paidAccountId
+            val account = accountId?.let { dao.account(it) }
+            if (account != null) dao.putAccount(account.copy(balance = account.balance + bill.amount))
+            dao.putBill(bill.copy(isPaid = false, paidAccountId = null, paidAtMillis = null, paymentTransactionId = null))
         }
-        if (txId != null) {
-            dao.deleteTransaction(txId)
-        }
-        dao.putBill(
-            bill.copy(
-                isPaid = false,
-                paidAccountId = null,
-                paidAtMillis = null,
-                paymentTransactionId = null
-            )
-        )
     }
 
     suspend fun deleteBill(billId: String) = db.withTransaction {
-        val bill = dao.bill(billId)
-        // Jika sudah dibayar, reverse dulu
-        if (bill != null && bill.isPaid) {
-            unpayBillInternal(bill)
-        }
-        // Hapus parent + children
-        dao.deleteBill(billId)
-    }
-
-    private suspend fun unpayBillInternal(bill: BillEntity) {
-        val accountId = bill.paidAccountId
-        val txId = bill.paymentTransactionId
-        if (accountId != null) {
-            val account = dao.account(accountId)
-            if (account != null) {
-                dao.putAccount(account.copy(balance = account.balance + bill.amount))
+        val family = dao.billFamily(billId)
+        if (family.isEmpty()) return@withTransaction
+        // Reverse semua pembayaran melalui deleteTransaction agar saldo dan state bill
+        // dipulihkan tepat sekali. Setelah itu hapus seluruh family cicilan.
+        family.filter { it.isPaid }.forEach { bill ->
+            val txId = bill.paymentTransactionId
+            if (txId != null && dao.transaction(txId) != null) {
+                deleteTransaction(txId)
+            } else {
+                val account = bill.paidAccountId?.let { dao.account(it) }
+                if (account != null) dao.putAccount(account.copy(balance = account.balance + bill.amount))
             }
         }
-        if (txId != null) {
-            dao.deleteTransaction(txId)
-        }
+        family.forEach { dao.deleteBill(it.id) }
     }
 
     // ── Investments ───────────────────────────────────────────────────────
@@ -674,45 +684,35 @@ class FinanceRepository(private val db: AppDatabase) {
         )
     }
 
-    /** Batalkan status lunas: reverse saldo + hapus transaksi via paymentTransactionId. */
+    /** Batalkan status lunas tanpa double-reverse saldo. */
     suspend fun markDebtUnpaid(debt: DebtEntity) = db.withTransaction {
         require(debt.isPaid) { "Belum lunas" }
-        val accountId = debt.paidAccountId
         val txId = debt.paymentTransactionId
-        if (accountId != null) {
-            val account = dao.account(accountId)
-            if (account != null) {
-                val newBal = if (debt.type == "piutang") {
-                    account.balance - debt.amount
-                } else {
-                    account.balance + debt.amount
-                }
-                dao.putAccount(account.copy(balance = newBal))
-            }
-        }
-        if (txId != null) {
-            dao.deleteTransaction(txId)
+        if (txId != null && dao.transaction(txId) != null) {
+            deleteTransaction(txId)
         } else {
-            // Fallback untuk data lama yang belum punya paymentTransactionId
-            val catPrefix = if (debt.type == "piutang") "Piutang · " else "Utang · "
-            val related = dao.allTransactions().filter {
-                it.accountId == accountId &&
-                    it.amount == debt.amount &&
-                    it.category.startsWith(catPrefix) &&
-                    it.category.contains(debt.person) &&
-                    (debt.paidAtMillis == null ||
-                        kotlin.math.abs(it.dateMillis - debt.paidAtMillis) < 60_000)
+            val account = debt.paidAccountId?.let { dao.account(it) }
+            if (account != null) {
+                val restored = if (debt.type == "piutang") account.balance - debt.amount else account.balance + debt.amount
+                dao.putAccount(account.copy(balance = restored))
             }
-            related.forEach { dao.deleteTransaction(it.id) }
+            dao.putDebt(debt.copy(isPaid = false, paidAtMillis = null, paidAccountId = null, paymentTransactionId = null))
         }
-        dao.putDebt(
-            debt.copy(
-                isPaid = false,
-                paidAtMillis = null,
-                paidAccountId = null,
-                paymentTransactionId = null
-            )
-        )
+    }
+
+    suspend fun deleteDebt(debtId: String) = db.withTransaction {
+        val debt = dao.allDebts().firstOrNull { it.id == debtId } ?: return@withTransaction
+        val txId = debt.paymentTransactionId
+        if (debt.isPaid && txId != null && dao.transaction(txId) != null) {
+            deleteTransaction(txId)
+        } else if (debt.isPaid) {
+            val account = debt.paidAccountId?.let { dao.account(it) }
+            if (account != null) {
+                val restored = if (debt.type == "piutang") account.balance - debt.amount else account.balance + debt.amount
+                dao.putAccount(account.copy(balance = restored))
+            }
+        }
+        dao.deleteDebt(debtId)
     }
 
     // ── Backup ────────────────────────────────────────────────────────────
@@ -731,6 +731,7 @@ class FinanceRepository(private val db: AppDatabase) {
         } else {
             BackupCodec.decode(json)
         }
+        validateBackup(data)
         dao.clearAccounts()
         dao.clearTransactions()
         dao.clearBills()
@@ -748,4 +749,32 @@ class FinanceRepository(private val db: AppDatabase) {
         dao.putSchedules(data.schedules)
         dao.putSalaries(data.salaries)
     }
+    private fun validateBackup(data: BackupData) {
+        val accountIds = data.accounts.map { it.id }.toSet()
+        require(accountIds.size == data.accounts.size) { "Backup memiliki ID rekening duplikat" }
+        require(data.transactions.all { it.accountId in accountIds }) { "Backup memiliki transaksi dengan rekening yang tidak ada" }
+        val groupedTransfers = data.transactions.filter { it.transferGroupId != null }.groupBy { it.transferGroupId }
+        require(groupedTransfers.values.all { group ->
+            group.size == 2 && group.count { it.type == "transfer_out" } == 1 && group.count { it.type == "transfer_in" } == 1 &&
+                group[0].amount == group[1].amount
+        }) { "Backup memiliki transfer yang tidak berpasangan" }
+        require(data.contributions.all { it.accountId in accountIds }) { "Backup memiliki kontribusi dengan rekening yang tidak ada" }
+        val assetIds = data.investments.map { it.id }.toSet()
+        require(assetIds.size == data.investments.size) { "Backup memiliki ID investasi duplikat" }
+        require(data.contributions.all { it.assetId in assetIds }) { "Backup memiliki kontribusi dengan investasi yang tidak ada" }
+        require(data.transactions.all { it.investmentAssetId == null || it.investmentAssetId in assetIds }) { "Backup memiliki transaksi investasi yang tidak valid" }
+        require(data.schedules.all { it.accountId in accountIds && it.assetId in assetIds }) { "Backup memiliki jadwal investasi yang tidak valid" }
+        require(data.salaries.all { it.accountId in accountIds }) { "Backup memiliki jadwal gaji dengan rekening yang tidak ada" }
+        require(data.bills.all {
+            it.amount > 0 && (it.paidAccountId == null || it.paidAccountId in accountIds)
+        }) { "Backup memiliki tagihan dengan nominal/rekening pembayaran tidak valid" }
+        val transactionIds = data.transactions.map { it.id }.toSet()
+        require(data.bills.all { it.paymentTransactionId == null || it.paymentTransactionId in transactionIds }) { "Backup memiliki referensi pembayaran tagihan yang tidak valid" }
+        require(data.debts.all {
+            it.amount > 0 && (it.type == "utang" || it.type == "piutang") &&
+                (it.paidAccountId == null || it.paidAccountId in accountIds)
+        }) { "Backup memiliki utang/piutang tidak valid" }
+        require(data.debts.all { it.paymentTransactionId == null || it.paymentTransactionId in transactionIds }) { "Backup memiliki referensi pembayaran utang/piutang yang tidak valid" }
+    }
+
 }
