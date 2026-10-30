@@ -53,10 +53,26 @@ jobs:
           cp app/build/outputs/apk/debug/app-debug.apk release/SakuMe-v${{ env.VERSION_NAME }}.apk
 
       - name: Extract changelog for this version
-        id: changelog
         run: |
-          CHANGELOG=\( (awk "/## \[ \){{ env.VERSION_NAME }}\]/{flag=1; next} /## \[/{flag=0} flag" CHANGELOG.md)
-          echo "$CHANGELOG" > release_notes.md
+          VERSION="${{ env.VERSION_NAME }}"
+          echo "Mencari changelog untuk versi: $VERSION"
+
+          if [ -f CHANGELOG.md ]; then
+            awk -v ver="$VERSION" '
+              $0 \~ "^## \\[" ver "\\]" {flag=1; next}
+              flag && /^## \[/ {exit}
+              flag {print}
+            ' CHANGELOG.md > release_notes.md
+          else
+            echo "CHANGELOG.md tidak ditemukan" > release_notes.md
+          fi
+
+          if [ ! -s release_notes.md ]; then
+            echo "### Changes" > release_notes.md
+            echo "- Release v${VERSION}" >> release_notes.md
+          fi
+
+          echo "===== Release Notes ====="
           cat release_notes.md
 
       - name: Create GitHub Release
